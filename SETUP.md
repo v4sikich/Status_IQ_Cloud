@@ -204,12 +204,17 @@ reply. explicitely ask in bold : 'Do you approve or Do you need changes at this 
 
 ### 10. Show the final report
 
-Open the HTML report in the default browser (`start <path>`) and tell the
-user where the PPTX file is too:
+Open the HTML report in the default browser (`start <path>`), then tell the
+user both final paths (absolute, not relative) in exactly this format:
+
 ```
-projects\acme_corp\Acme_Corp_Status_Report.html
-projects\acme_corp\Acme_Corp_Status_Report.pptx
+The report is now open in your browser.
+
+PowerPoint version:
+
+C:\Users\<name>\...\Status_IQ_Cloud\projects\acme_corp\Acme_Corp_Status_Report.pptx
 ```
+
 Both final files already live directly in `projects\acme_corp\` — there is no
 separate copy step. Keep the `workflow_execution\` path hidden from the user;
 it's intermediate working data, not a deliverable.
