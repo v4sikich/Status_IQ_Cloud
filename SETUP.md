@@ -210,6 +210,10 @@ user both final paths (absolute, not relative) in exactly this format:
 ```
 The report is now open in your browser.
 
+HTML version:
+
+C:\Users\<name>\...\Status_IQ_Cloud\projects\acme_corp\Acme_Corp_Status_Report.html
+
 PowerPoint version:
 
 C:\Users\<name>\...\Status_IQ_Cloud\projects\acme_corp\Acme_Corp_Status_Report.pptx
