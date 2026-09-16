@@ -38,6 +38,12 @@ Give a very simple small overview of the process you are going to follow in the 
 **Only stop and ask the user directly at the three points marked `⏸ PAUSE`.**
 Everywhere else, make reasonable decisions yourself and keep going use professional formal language to ask anything to user.
 
+**Always state the exact absolute folder path out loud before you create or
+write into it.** The user cannot see your shell - if you don't say the path,
+they have no way to find their files. This applies at minimum: right after
+step 2 (the project root everything else happens inside), and right after
+step 6 (the new project folder for this specific client).
+
 ### 1. Check for Python, install it if missing
 
 Run `python --version`.
@@ -63,6 +69,14 @@ Otherwise, clone it into a subfolder here and move into it:
 git clone https://github.com/v4sikich/Status_IQ_Cloud
 cd Status_IQ_Cloud
 ```
+
+Either way (already inside it, or just cloned+cd'ed), print the full absolute
+path of this folder (e.g. `pwd` or `Get-Location`) and tell the user in plain
+language: "Everything for every project you set up will live inside:
+`<absolute path>`." If you just cloned it as a subfolder of wherever they
+originally opened Claude Code, also tell them: "Next time, open Claude Code
+directly from this folder (`<absolute path>`) instead of the one you started
+in today, so you land here automatically instead of having to clone again."
 
 ### 3. Create and activate a virtual environment
 
@@ -107,14 +121,15 @@ they say the files are in:
   ```
   Copy-Item -Recurse projects\_template_project projects\acme_corp
   ```
-- Tell the user the exact path to drop files into this is mandatory:
-  `projects\acme_corp\input\`
+- Tell the user the exact absolute path to drop files into this is mandatory
+  (resolve `projects\acme_corp\input\` to its full absolute path, e.g.
+  `C:\Users\<name>\...\Status_IQ_Cloud\projects\acme_corp\input\`, don't just
+  give the relative path) - this is the folder they need to open in File
+  Explorer.
 
 Once they confirm files are in place, list `projects\acme_corp\input\` and
 briefly confirm what you found (e.g. "found a SOW PDF, a Word doc, and an
 Excel workbook") before moving on. If the folder is empty, say so and wait.
-Important to educate users on where their files end up in Explorer, 
-as this is where they need to load their source/input data, give clear instructions.
 
 ### 7. Run the pipeline
 
