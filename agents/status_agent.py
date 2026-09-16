@@ -39,6 +39,30 @@ NAV_SECTIONS = [
 
 NAV_STYLE = """
 <style id="sikich-branding-style">
+    @font-face {
+        font-family: 'Denton Light';
+        src: local('Denton Light'), local('Times New Roman');
+        font-weight: 300;
+    }
+    @font-face {
+        font-family: 'Systemia';
+        src: local('Systemia'), local('Aptos'), local('Arial');
+    }
+    /* Sikich brand typography, forced consistently on every generated report
+       regardless of what the model wrote: Systemia for body copy, Denton
+       Light for headings/labels/badges and anything else that isn't a
+       paragraph or sentence. */
+    body, body * {
+        font-family: 'Systemia', 'Aptos', Arial, sans-serif !important;
+    }
+    h1, h2, h3, h4, h5, h6,
+    th, strong, b, label, button, summary, dt,
+    [class*="badge"]:not(p):not(li),
+    [class*="label"]:not(p):not(li),
+    [class*="tag"]:not(p):not(li),
+    [class*="title"]:not(p):not(li) {
+        font-family: 'Denton Light', 'Times New Roman', serif !important;
+    }
     #sikich-nav-panel, #sikich-nav-panel * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body { margin: 0 !important; padding-left: 260px !important; }
@@ -52,7 +76,6 @@ NAV_STYLE = """
         overflow-y: auto;
         padding: 24px 0;
         z-index: 1000;
-        font-family: Arial, Helvetica, sans-serif;
     }
     #sikich-nav-panel::-webkit-scrollbar { width: 8px; }
     #sikich-nav-panel::-webkit-scrollbar-thumb { background: #0099cc; border-radius: 4px; }
@@ -81,6 +104,9 @@ NAV_STYLE = """
         background-color: rgba(0, 153, 204, 0.25);
         color: #ffffff;
         border-left-color: #0099cc;
+    }
+    #sikich-nav-panel h2, #sikich-nav-panel a {
+        font-family: 'Denton Light', 'Times New Roman', serif !important;
     }
     @media (max-width: 768px) {
         body { padding-left: 0 !important; }
