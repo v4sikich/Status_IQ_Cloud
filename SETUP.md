@@ -30,6 +30,10 @@ Work through the steps below **in order, automatically**, using your own
 shell access — do not ask the user to type or run any command themselves.
 Narrate briefly in plain, non-technical language as you go (the user has no
 coding background) and confirm each step succeeded before moving to the next.
+If any major dependency error occurs, ask the user to contact the engineer, 
+dont try to solve it if its critical or requires additional installations like on terminal
+
+Give a very simple small overview of the process you are going to follow in the excution of the project.
 
 **Only stop and ask the user directly at the three points marked `⏸ PAUSE`.**
 Everywhere else, make reasonable decisions yourself and keep going use professional formal language to ask anything to user.
@@ -50,14 +54,14 @@ Run `python --version`.
 
 ### 2. Get the project code
 
-Check whether you're already inside the `RQ-C_framework` repo (e.g. this
+Check whether you're already inside the `Status_IQ_Cloud` repo (e.g. this
 SETUP.md file lives inside a folder containing `run_pipeline.py`, `agents/`,
 etc.). If so, skip cloning and just note that the code is already present.
 
 Otherwise, clone it into a subfolder here and move into it:
 ```
-git clone https://github.com/v4sikich/RQ-C_framework
-cd RQ-C_framework
+git clone https://github.com/v4sikich/Status_IQ_Cloud
+cd Status_IQ_Cloud
 ```
 
 ### 3. Create and activate a virtual environment
@@ -109,6 +113,8 @@ they say the files are in:
 Once they confirm files are in place, list `projects\acme_corp\input\` and
 briefly confirm what you found (e.g. "found a SOW PDF, a Word doc, and an
 Excel workbook") before moving on. If the folder is empty, say so and wait.
+Important to educate users on where their files end up in Explorer, 
+as this is where they need to load their source/input data, give clear instructions.
 
 ### 7. Run the pipeline
 
@@ -119,12 +125,15 @@ Do **not** add `--interactive` — that flag pauses for input in a live
 terminal, which doesn't work over tool calls. The review/feedback loop below
 happens in chat instead.
 
-This produces, inside `projects\acme_corp\workflow_execution\`:
+This produces, directly inside `projects\acme_corp\`:
+- `<Client>_Status_Report.html` — the final report
+- `<Client>_Status_Report.pptx` — the same report as a PowerPoint slide
+
+...and inside `projects\acme_corp\workflow_execution\` (intermediate working
+data, not a deliverable — don't show this path to the user):
 - `01_flattened/` — the raw files broken into organized sections
 - `02_intake_output.json` — extracted facts (timeline, budget, risks, etc.)
 - `03_prioritized_output.json` — the same facts, ranked/filtered for the report
-- `<Client>_Status_Report.html` — the final report
-- `<Client>_Status_Report.pptx` — the same report as a PowerPoint slide
 
 If the run fails, diagnose the actual cause (e.g. bad API key, empty input
 folder) and explain it to the user in plain language rather than showing a
@@ -151,7 +160,7 @@ reply. explicitely ask in bold : 'Do you approve or Do you need changes at this 
   file from the updated `02_intake_output.json`:
 
   Show the updated summary and ask again. Repeat as many rounds as the user
-  wants — there's no limit. Try to include all important things in the report
+  wants — there's no limit. Try to include all important things in the report with insights on patterns observed if available.
 
 ### 9. ⏸ PAUSE (repeatable) — Review and get feedback
 
@@ -175,7 +184,7 @@ reply. explicitely ask in bold : 'Do you approve or Do you need changes at this 
   - `agents.status_agent.StatusReportAgent().generate_html_report(...)`
   - `agents.ppt_agent.PptxReportAgent().generate_pptx_report(...)`
   Show the updated summary and ask again. Repeat as many rounds as the user
-  wants — there's no limit. Try to include all important things in the report
+  wants — there's no limit. Try to include all important things in the report with insights on patterns observed if available
   Use no emojis, no health-bar, keep it professional
 
 ### 10. Show the final report
@@ -183,10 +192,12 @@ reply. explicitely ask in bold : 'Do you approve or Do you need changes at this 
 Open the HTML report in the default browser (`start <path>`) and tell the
 user where the PPTX file is too:
 ```
-projects\acme_corp\workflow_execution\Acme_Corp_Status_Report.html
-projects\acme_corp\workflow_execution\Acme_Corp_Status_Report.pptx
+projects\acme_corp\Acme_Corp_Status_Report.html
+projects\acme_corp\Acme_Corp_Status_Report.pptx
 ```
-A copy of the final HTML also gets placed in `projects\acme_corp\output\`, show this path and keep the path of workflow execution hidden
+Both final files already live directly in `projects\acme_corp\` — there is no
+separate copy step. Keep the `workflow_execution\` path hidden from the user;
+it's intermediate working data, not a deliverable.
 Dont give any summary or insight at end just open the html and the path to pptx file
 
 ### 11. Later re-runs

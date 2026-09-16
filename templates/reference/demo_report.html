@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<title>Acme Corp Data Migration - Status Report</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, Arial, sans-serif;
+    color: #1a1a1a;
+    background: #ffffff;
+    margin: 0;
+    line-height: 1.5;
+  }
+  .report-header {
+    background: #003366;
+    color: #ffffff;
+    padding: 32px 40px;
+  }
+  .report-header h1 { margin: 0 0 6px 0; font-size: 26px; }
+  .report-header .meta { font-size: 13px; color: #cfe3f2; }
+  .health-badge {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 13px;
+    background: #fbc02d;
+    color: #1a1a1a;
+  }
+  section { padding: 28px 40px; border-bottom: 1px solid #eee; }
+  section h2 { color: #003366; font-size: 20px; margin-top: 0; }
+  .status-grid { display: flex; gap: 16px; flex-wrap: wrap; }
+  .status-card { flex: 1; min-width: 160px; background: #f5f5f5; border-left: 4px solid #0099cc; padding: 14px; border-radius: 4px; }
+  .status-card h4 { margin: 0 0 6px 0; font-size: 12px; text-transform: uppercase; color: #003366; }
+  .status-card p { margin: 0; font-size: 14px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  td, th { text-align: left; padding: 6px 10px; border-bottom: 1px solid #eee; }
+  ul { margin: 0; padding-left: 20px; }
+  li { margin-bottom: 8px; }
+  .risk-card { background: #f5f5f5; border-left: 4px solid #d32f2f; padding: 14px; border-radius: 4px; margin-bottom: 12px; }
+  .risk-card.medium { border-left-color: #fbc02d; }
+  .blocker-card { background: #fdeaea; border-left: 4px solid #d32f2f; padding: 14px; border-radius: 4px; margin-bottom: 12px; }
+  details summary { cursor: pointer; font-weight: 600; color: #003366; padding: 8px 0; }
+  footer { padding: 20px 40px; text-align: center; color: #666; font-size: 12px; }
+  @media print { body { background: #fff; } }
+  @media (max-width: 600px) { section { padding: 20px; } .status-grid { flex-direction: column; } }
+</style>
+
+<style id="sikich-branding-style">
+    #sikich-nav-panel, #sikich-nav-panel * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0 !important; padding-left: 260px !important; }
+    #sikich-nav-panel {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 260px;
+        height: 100vh;
+        background-color: #003366;
+        overflow-y: auto;
+        padding: 24px 0;
+        z-index: 1000;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    #sikich-nav-panel::-webkit-scrollbar { width: 8px; }
+    #sikich-nav-panel::-webkit-scrollbar-thumb { background: #0099cc; border-radius: 4px; }
+    #sikich-nav-panel .sikich-nav-logo { padding: 0 20px 20px; }
+    #sikich-nav-panel .sikich-nav-logo img { width: 100%; max-width: 180px; display: block; }
+    #sikich-nav-panel h2 {
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 14px 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+        margin: 10px 0 0 0;
+    }
+    #sikich-nav-panel a {
+        display: block;
+        padding: 10px 20px;
+        color: #cfe3f2;
+        text-decoration: none;
+        font-size: 14px;
+        border-left: 3px solid transparent;
+        transition: all 0.2s ease;
+    }
+    #sikich-nav-panel a:hover {
+        background-color: rgba(0, 153, 204, 0.25);
+        color: #ffffff;
+        border-left-color: #0099cc;
+    }
+    @media (max-width: 768px) {
+        body { padding-left: 0 !important; }
+        #sikich-nav-panel { position: relative; width: 100%; height: auto; }
+    }
+    @media print {
+        #sikich-nav-panel { display: none !important; }
+        body { padding-left: 0 !important; }
+    }
+</style>
+</head>
+<body<!--
+Data Source Information:
+Project: Acme Corp Data Migration
+Generated: Unknown
+Data Quality: high
+
+Original Metrics:
+- Total Risks Found: 2
+- Total Completed Items: 3
+- Total Upcoming Items: 2
+
+Highlighted Items:
+- Risks to Address: 2
+- Critical Blockers: 1
+- Recommendations: 2
+-->
+>
+<nav id="sikich-nav-panel">
+    <div class="sikich-nav-logo">
+        <img src="https://tse3.mm.bing.net/th/id/OIP.k08qFe2HuE5-R9RJGS3isgAAAA?r=0&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Sikich Logo">
+    </div>
+        <h2>Navigation</h2>
+        <a href="#executive-summary">Executive Summary</a>
+        <a href="#status-indicators">Status Indicators</a>
+        <a href="#metrics">Metrics</a>
+        <a href="#timeline">Timeline</a>
+        <a href="#accomplishments">Key Accomplishments</a>
+        <a href="#upcoming-focus">Upcoming Focus</a>
+        <a href="#risks">Risks & Mitigations</a>
+        <a href="#blockers">Critical Blockers</a>
+        <a href="#stakeholders">Key Stakeholders</a>
+        <a href="#next-steps">Next Steps</a>
+</nav>
+
+
+<div class="report-header">
+  <h1>Acme Corp Data Migration</h1>
+  <div class="meta">Status Date: 2026-09-16 &nbsp;|&nbsp; Target Go-Live: 2026-11-15</div>
+  <span class="health-badge">YELLOW</span>
+</div>
+
+<section id="executive-summary">
+  <h2>Executive Summary</h2>
+  <p>Acme Corp Data Migration is on track for the Nov 15, 2026 go-live, with one high-severity dependency on client-side data cleanup that needs attention this week.</p>
+</section>
+
+<section id="status-indicators">
+  <h2>Status Indicators</h2>
+  <div class="status-grid">
+    <div class="status-card"><h4>Scope</h4><p>On track - no scope changes since kickoff</p></div>
+    <div class="status-card"><h4>Timeline</h4><p>At risk - client data cleanup running 1 week behind</p></div>
+    <div class="status-card"><h4>Resources</h4><p>Fully staffed</p></div>
+    <div class="status-card"><h4>Budget</h4><p>On budget</p></div>
+  </div>
+</section>
+
+<section id="metrics">
+  <h2>Metrics</h2>
+  <table>
+    <tr><td>Contract Type</td><td>Time &amp; Materials</td></tr>
+    <tr><td>Hours Estimated / Consumed / Remaining</td><td>480 / 210 / 270</td></tr>
+    <tr><td>Budget Total / Spent</td><td>$96,000 / $42,000</td></tr>
+  </table>
+</section>
+
+<section id="timeline">
+  <h2>Timeline</h2>
+  <p>Currently tracking one week behind plan on the data cleanup workstream; all other workstreams on schedule for the Nov 15 go-live.</p>
+</section>
+
+<section id="accomplishments">
+  <details>
+    <summary>Key Accomplishments</summary>
+    <ul>
+      <li>Completed data mapping for all 14 legacy tables</li>
+      <li>Finished environment setup for Dev and Staging</li>
+      <li>Signed off on integration test plan with Acme IT</li>
+    </ul>
+  </details>
+</section>
+
+<section id="upcoming-focus">
+  <details>
+    <summary>Upcoming Focus</summary>
+    <ul>
+      <li><strong>Client completes SKU deduplication</strong> - due 2026-09-20 (Acme Corp Data Team) - blocks start of migration validation phase</li>
+      <li><strong>Begin UAT</strong> - due 2026-10-06 (Sikich QA) - confirms production readiness ahead of go-live</li>
+    </ul>
+  </details>
+</section>
+
+<section id="risks">
+  <details>
+    <summary>Risks & Mitigations</summary>
+    <div class="risk-card">
+      <strong>Client Data Cleanup Behind Schedule</strong> (High)
+      <p>Legacy inventory records still contain duplicate SKUs; migration cannot proceed to validation until cleanup is complete.</p>
+    </div>
+    <div class="risk-card medium">
+      <strong>UAT Window Overlaps Thanksgiving Week</strong> (Medium)
+      <p>Reduced client availability for user acceptance testing could compress the feedback cycle.</p>
+    </div>
+  </details>
+</section>
+
+<section id="blockers">
+  <h2>Critical Blockers</h2>
+  <div class="blocker-card">Duplicate SKU cleanup not yet complete - blocks validation phase start</div>
+</section>
+
+<section id="stakeholders">
+  <h2>Key Stakeholders</h2>
+  <ul>
+    <li>Jordan Blake - Project Manager, Sikich</li>
+    <li>Priya Nair - Technical Lead, Sikich</li>
+    <li>Marcus Chen - VP Operations, Acme Corp</li>
+  </ul>
+</section>
+
+<section id="next-steps">
+  <h2>Next Steps / Recommendations</h2>
+  <ul>
+    <li>Escalate SKU cleanup ownership to Marcus Chen if not resolved by 09-20</li>
+    <li>Confirm UAT participant availability given the Thanksgiving overlap</li>
+  </ul>
+</section>
+
+<footer>Generated on 2026-09-16</footer>
+
+</body>
+</html>

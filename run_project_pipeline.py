@@ -44,11 +44,13 @@ Examples:
     --transcript projects/stephenson_rife/input/custom_transcript.txt
 
   # Results will appear in:
-  # projects/stephenson_rife/workflow_execution/
-  #   ├── 01_flattened/
-  #   ├── 02_intake_output.json
-  #   ├── 03_prioritized_output.json
-  #   └── stephenson_rife_Status_Report.html
+  # projects/stephenson_rife/
+  #   ├── Stephenson_Rife_Status_Report.html   (final report)
+  #   ├── Stephenson_Rife_Status_Report.pptx   (final report, PPTX)
+  #   └── workflow_execution/                  (intermediate working data)
+  #       ├── 01_flattened/
+  #       ├── 02_intake_output.json
+  #       └── 03_prioritized_output.json
         """)
 
     parser.add_argument("--project-name", required=True,
@@ -103,7 +105,7 @@ Examples:
     print(f"📁 Project Folder: {project_dir}")
     print(f"📄 Transcript: {transcript_file}")
     print(f"📋 Metadata: {metadata_file}")
-    print(f"📊 Results will be saved to: {project_dir}/workflow_execution/\n")
+    print(f"📊 Results will be saved to: {project_dir}/\n")
 
     # Run pipeline
     orchestrator = PipelineOrchestrator()
@@ -118,27 +120,20 @@ Examples:
 
     if results:
         # Print results summary
+        html_path = Path(results['status_report']['file'])
+        pptx_path = Path(results['pptx_report']['file'])
+
         print(f"\n{'='*80}")
         print(f"✅ PIPELINE COMPLETE!")
         print(f"{'='*80}")
-        print(f"\n📁 Results Location: {project_dir}/workflow_execution/")
+        print(f"\n📁 Results Location: {project_dir}/")
         print(f"\n📄 Generated Files:")
-        print(f"   ✅ 01_flattened/                    (Markdown chunks)")
-        print(f"   ✅ 02_intake_output.json            (Extracted KPIs)")
-        print(f"   ✅ 03_prioritized_output.json       (Ranked data)")
-        print(f"   ✅ {project_name}_Status_Report.html (Final report)")
+        print(f"   ✅ {html_path.name}       (Final report, HTML)")
+        print(f"   ✅ {pptx_path.name}       (Final report, PPTX)")
+        print(f"   ✅ workflow_execution/    (flattened data, extracted KPIs, ranked data)")
 
-        # Print report location
-        report_path = project_dir / "workflow_execution" / f"{project_name}_Status_Report.html"
         print(f"\n🌐 View Report:")
-        print(f"   file://{report_path.absolute()}")
-
-        # Also copy to output folder
-        output_report = project_dir / "output" / f"{project_name}_Status_Report.html"
-        output_report.parent.mkdir(parents=True, exist_ok=True)
-        import shutil
-        shutil.copy(str(report_path), str(output_report))
-        print(f"\n💾 Also saved to: {output_report}")
+        print(f"   file://{html_path.absolute()}")
 
         return 0
     else:

@@ -47,29 +47,29 @@ production/
 │   │   │   ├── transcript.vtt (optional)
 │   │   │   └── metadata.json
 │   │   │
-│   │   ├── workflow_execution/              🔄 Pipeline execution results
-│   │   │   ├── 01_flattened/                Flattened markdown chunks
-│   │   │   │   ├── meeting_summary.md
-│   │   │   │   ├── risks_issues.md
-│   │   │   │   ├── deliverables.md
-│   │   │   │   ├── timeline.md
-│   │   │   │   ├── budget.md
-│   │   │   │   └── metadata.yaml
-│   │   │   │
-│   │   │   ├── 02_intake_output.json        Extracted KPIs
-│   │   │   ├── 03_prioritized_output.json   Ranked & filtered KPIs
-│   │   │   ├── stephenson_rife_Status_Report.html
-│   │   │   └── README.md                    Workflow execution notes
+│   │   ├── stephenson_rife_Status_Report.html   📤 Final report (direct, not nested)
+│   │   ├── stephenson_rife_Status_Report.pptx   📤 Final report, PPTX (direct, not nested)
 │   │   │
-│   │   └── output/                          📤 Final outputs (if needed)
-│   │       └── stephenson_rife_Status_Report.html
+│   │   └── workflow_execution/              🔄 Intermediate working data (not a deliverable)
+│   │       ├── 01_flattened/                Flattened markdown chunks
+│   │       │   ├── meeting_summary.md
+│   │       │   ├── risks_issues.md
+│   │       │   ├── deliverables.md
+│   │       │   ├── timeline.md
+│   │       │   ├── budget.md
+│   │       │   └── metadata.yaml
+│   │       │
+│   │       ├── 02_intake_output.json        Extracted KPIs
+│   │       ├── 03_prioritized_output.json   Ranked & filtered KPIs
+│   │       └── README.md                    Workflow execution notes
 │   │
 │   ├── galfand_berger/                      ✅ EXAMPLE PROJECT
 │   │   ├── README.md
 │   │   ├── metadata.json
 │   │   ├── input/
-│   │   ├── workflow_execution/
-│   │   └── output/
+│   │   ├── [project]_Status_Report.html
+│   │   ├── [project]_Status_Report.pptx
+│   │   └── workflow_execution/
 │   │
 │   ├── _template_project/                   📝 TEMPLATE FOR NEW PROJECTS
 │   │   ├── README.md
@@ -77,9 +77,7 @@ production/
 │   │   ├── input/
 │   │   │   ├── README.md                    Instructions for input files
 │   │   │   └── transcript.txt.example
-│   │   ├── workflow_execution/
-│   │   │   └── README.md
-│   │   └── output/
+│   │   └── workflow_execution/
 │   │       └── README.md
 │   │
 │   └── README.md                            Guide for managing projects
@@ -186,11 +184,12 @@ src/
 **Structure per project**:
 ```
 projects/[project_name]/
-├── README.md                    Project notes & metadata
-├── metadata.json                Project configuration
-├── input/                       Input files (transcripts, metadata)
-├── workflow_execution/          Pipeline execution results
-└── output/                      Final output files (if needed)
+├── README.md                          Project notes & metadata
+├── metadata.json                      Project configuration
+├── input/                             Input files (transcripts, metadata)
+├── [project]_Status_Report.html       Final report (direct, not nested)
+├── [project]_Status_Report.pptx       Final report, PPTX (direct, not nested)
+└── workflow_execution/                Intermediate pipeline working data
 ```
 
 **Example Projects**:
@@ -278,6 +277,12 @@ branding/
 - Use for testing and reference
 - Document example project details
 
+> **Current repo note**: this `examples/` folder doesn't exist yet in the
+> present codebase. One-off reference/demo reports (e.g. for manually
+> verifying a template change without a live pipeline run) currently live
+> in `templates/reference/` instead. Never leave demo/sample reports in
+> `output/` - that folder is reserved for real pipeline runs only.
+
 ---
 
 ### 📊 `archive/` - Old Projects
@@ -329,16 +334,14 @@ projects/[project_name]/
 │   ├── transcript.txt         # Meeting transcript
 │   └── transcript.vtt         # Optional VTT format
 │
-├── workflow_execution/
-│   ├── 01_flattened/          # Flattened markdown (auto-generated)
-│   ├── 02_intake_output.json  # Extracted KPIs (auto-generated)
-│   ├── 03_prioritized_output.json  # Ranked data (auto-generated)
-│   ├── [project]_Status_Report.html # Final report (auto-generated)
-│   └── README.md              # Execution notes
+├── [project]_Status_Report.html   # Final report (auto-generated, direct)
+├── [project]_Status_Report.pptx   # Final report, PPTX (auto-generated, direct)
 │
-└── output/
-    ├── README.md              # Output notes
-    └── [project]_Status_Report.html # Copy of final report
+└── workflow_execution/
+    ├── 01_flattened/          # Flattened markdown (auto-generated)
+    ├── 02_intake_output.json  # Extracted KPIs (auto-generated)
+    ├── 03_prioritized_output.json  # Ranked data (auto-generated)
+    └── README.md              # Execution notes
 ```
 
 ---
@@ -364,7 +367,7 @@ projects/[project_name]/
 - Flattened data → `workflow_execution/01_flattened/`
 - Extracted KPIs → `workflow_execution/02_intake_output.json`
 - Prioritized → `workflow_execution/03_prioritized_output.json`
-- Final report → `workflow_execution/[name]_Status_Report.html`
+- Final report (HTML/PPTX) → `[project]_Status_Report.html` / `.pptx`, directly in `projects/[name]/` (not inside `workflow_execution/`)
 
 ### Source Tracking
 
@@ -384,7 +387,7 @@ Each project folder includes metadata for tracking:
 | Add new project | `projects/[new_project_name]/` |
 | Review documentation | `docs/` |
 | Find project transcript | `projects/[name]/input/` |
-| Find project report | `projects/[name]/workflow_execution/` |
+| Find project report | `projects/[name]/` (direct HTML/PPTX; not `workflow_execution/`) |
 | Customize branding | `branding/sikich/` |
 | View example output | `examples/` |
 | Update dependencies | `config/requirements.txt` |
@@ -394,46 +397,51 @@ Each project folder includes metadata for tracking:
 
 ## Workflow Execution in Detail
 
-For each project, the workflow_execution folder tracks the complete pipeline:
+For each project, the final report (HTML + PPTX) sits directly in
+`projects/[project]/`, while `workflow_execution/` tracks only the
+intermediate pipeline data behind it:
 
 ```
-projects/[project]/workflow_execution/
+projects/[project]/
 │
-├── 01_flattened/
-│   ├── meeting_summary.md      (95% confidence)
-│   ├── risks_issues.md         (75% confidence)
-│   ├── deliverables.md         (80% confidence)
-│   ├── timeline.md             (85% confidence)
-│   ├── budget.md               (70% confidence)
-│   └── metadata.yaml           (source tracking)
+├── [project]_Status_Report.html   (Self-contained HTML report, with the
+│                                    Sikich logo + nav panel auto-injected)
+├── [project]_Status_Report.pptx
 │
-├── 02_intake_output.json
-│   {
-│     "project_name": "...",
-│     "timeline": {...},
-│     "deliverables": {...},
-│     "risks": [{...}],
-│     "budget": {...},
-│     "health_status": "...",
-│     "confidence_scores": {...}
-│   }
-│
-├── 03_prioritized_output.json
-│   {
-│     "executive_summary": "...",
-│     "health_status_visual": "RED|YELLOW|GREEN",
-│     "risks_to_highlight": [...],
-│     "key_accomplishments": [...],
-│     "upcoming_focus": [...],
-│     "recommendations": [...]
-│   }
-│
-├── [project]_Status_Report.html
-│   (Self-contained HTML report)
-│
-└── README.md
-    # Notes about this execution
-    # Date executed, version, any issues
+└── workflow_execution/
+    │
+    ├── 01_flattened/
+    │   ├── meeting_summary.md      (95% confidence)
+    │   ├── risks_issues.md         (75% confidence)
+    │   ├── deliverables.md         (80% confidence)
+    │   ├── timeline.md             (85% confidence)
+    │   ├── budget.md               (70% confidence)
+    │   └── metadata.yaml           (source tracking)
+    │
+    ├── 02_intake_output.json
+    │   {
+    │     "project_name": "...",
+    │     "timeline": {...},
+    │     "deliverables": {...},
+    │     "risks": [{...}],
+    │     "budget": {...},
+    │     "health_status": "...",
+    │     "confidence_scores": {...}
+    │   }
+    │
+    ├── 03_prioritized_output.json
+    │   {
+    │     "executive_summary": "...",
+    │     "health_status_visual": "RED|YELLOW|GREEN",
+    │     "risks_to_highlight": [...],
+    │     "key_accomplishments": [...],
+    │     "upcoming_focus": [...],
+    │     "recommendations": [...]
+    │   }
+    │
+    └── README.md
+        # Notes about this execution
+        # Date executed, version, any issues
 ```
 
 ---

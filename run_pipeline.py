@@ -108,9 +108,8 @@ class PipelineOrchestrator:
             raise ValueError("Must provide either transcript_path or input_dir")
 
         if project_dir:
-            # Use project-specific workflow_execution folder
-            output_dir = Path(project_dir) / "workflow_execution"
-            output_dir.mkdir(parents=True, exist_ok=True)
+            # projects/[project_name]/ folder is the parent directory directly.
+            parent_dir = Path(project_dir)
         else:
             # Fall back to root output folder. Without an explicit project name yet
             # (it may still come from a SOW below), name the folder after the input
@@ -119,13 +118,21 @@ class PipelineOrchestrator:
             provisional_name = project_name or (Path(input_dir).name if input_dir else "Project")
             if output_name is None:
                 output_name = f"{provisional_name.replace(' ', '_')}_{self.timestamp}"
-            output_dir = self.base_output_dir / output_name
-            output_dir.mkdir(parents=True, exist_ok=True)
+            parent_dir = self.base_output_dir / output_name
+
+        parent_dir.mkdir(parents=True, exist_ok=True)
+
+        # The two final deliverables (HTML + PPTX) live directly in parent_dir.
+        # Everything else generated along the way (prepared input, flattened
+        # data, intake/prioritized JSON, review log) is working data and lives
+        # in a workflow_execution/ subfolder alongside them.
+        workflow_dir = parent_dir / "workflow_execution"
+        workflow_dir.mkdir(parents=True, exist_ok=True)
 
         # If a folder of raw project files was given, adapt it into a single
         # transcript/metadata/excel triple before running the normal pipeline steps.
         if input_dir:
-            prepared = prepare_pipeline_inputs(input_dir, str(output_dir / "00_prepared_input"))
+            prepared = prepare_pipeline_inputs(input_dir, str(workflow_dir / "00_prepared_input"))
             transcript_path = prepared["transcript"]
             excel_path = excel_path or prepared["excel"]
             if prepared["metadata"] and metadata_path is None:
@@ -141,14 +148,14 @@ class PipelineOrchestrator:
 
         # If still no metadata provided, create minimal default metadata
         if metadata_path is None:
-            metadata_path = self._create_default_metadata(output_dir, project_name, practice)
+            metadata_path = self._create_default_metadata(workflow_dir, project_name, practice)
 
         print(f"\n{'='*80}")
         print(f"🚀 PMO Status Report Pipeline")
         print(f"{'='*80}")
         print(f"📌 Project: {project_name}")
         print(f"📌 Practice: {practice}")
-        print(f"📌 Output: {output_dir}\n")
+        print(f"📌 Output: {parent_dir}\n")
 
         results = {}
 
@@ -157,7 +164,7 @@ class PipelineOrchestrator:
             print(f"\n{'='*80}")
             print(f"STEP 1: Data Flattening")
             print(f"{'='*80}")
-            flattened_dir = output_dir / "01_flattened"
+            flattened_dir = workflow_dir / "01_flattened"
             flattened_engine = FlatteningEngine(str(flattened_dir))
             flatten_result = flattened_engine.flatten(transcript_path, metadata_path, excel_path)
             results['flatten'] = flatten_result
@@ -167,7 +174,7 @@ class PipelineOrchestrator:
             print(f"\n{'='*80}")
             print(f"STEP 2: Intake Agent (Extract KPIs)")
             print(f"{'='*80}")
-            intake_output = output_dir / "02_intake_output.json"
+            intake_output = workflow_dir / "02_intake_output.json"
             intake_agent = IntakeAgent()
             kpis = intake_agent.extract_kpis(
                 str(flattened_dir),
@@ -204,7 +211,7 @@ class PipelineOrchestrator:
             print(f"\n{'='*80}")
             print(f"STEP 3: Prioritization Agent (Rank & Filter)")
             print(f"{'='*80}")
-            prioritized_output = output_dir / "03_prioritized_output.json"
+            prioritized_output = workflow_dir / "03_prioritized_output.json"
             prioritization_agent = PrioritizationAgent()
             prioritized = prioritization_agent.prioritize_kpis(
                 str(intake_output),
@@ -237,7 +244,7 @@ class PipelineOrchestrator:
             print(f"\n{'='*80}")
             print(f"STEP 4: Status Report Agent (Generate HTML)")
             print(f"{'='*80}")
-            html_output = output_dir / f"{project_name.replace(' ', '_')}_Status_Report.html"
+            html_output = parent_dir / f"{project_name.replace(' ', '_')}_Status_Report.html"
             status_agent = StatusReportAgent()
             html_path = status_agent.generate_html_report(str(prioritized_output), str(html_output))
             print(f"✅ HTML Report complete: saved to {Path(html_path).name}")
@@ -246,7 +253,7 @@ class PipelineOrchestrator:
             print(f"\n{'='*80}")
             print(f"STEP 5: PPTX Report Agent (Generate PowerPoint slide)")
             print(f"{'='*80}")
-            pptx_output = output_dir / f"{project_name.replace(' ', '_')}_Status_Report.pptx"
+            pptx_output = parent_dir / f"{project_name.replace(' ', '_')}_Status_Report.pptx"
             ppt_agent = PptxReportAgent()
             pptx_path = ppt_agent.generate_pptx_report(str(prioritized_output), str(pptx_output))
             print(f"✅ PPTX Report complete: saved to {Path(pptx_path).name}")
@@ -286,7 +293,7 @@ class PipelineOrchestrator:
             }
 
             if review_log:
-                review_log_path = output_dir / "review_log.json"
+                review_log_path = workflow_dir / "review_log.json"
                 with open(review_log_path, 'w') as f:
                     json.dump(review_log, f, indent=2)
                 print(f"\n📝 Review log saved to {review_log_path.name}")
@@ -295,7 +302,7 @@ class PipelineOrchestrator:
             print(f"\n{'='*80}")
             print(f"✅ PIPELINE COMPLETE!")
             print(f"{'='*80}")
-            print(f"\n📁 Output Directory: {output_dir}")
+            print(f"\n📁 Output Directory: {parent_dir}")
             print(f"\n📄 Generated Files:")
             print(f"   1️⃣  Flattened Data: {flattened_dir}/")
             print(f"   2️⃣  KPIs (JSON): {Path(results['intake']['file']).name}")

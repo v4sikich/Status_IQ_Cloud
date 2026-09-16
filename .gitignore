@@ -34,16 +34,15 @@ wheels/
 .sublime-workspace
 
 # Project-Specific Data (CONFIDENTIAL - DO NOT COMMIT)
-# Client transcripts
-projects/*/input/
-# Generated pipeline results
-projects/*/workflow_execution/
-# Generated reports
-projects/*/output/
-# Project metadata (if contains sensitive info)
-projects/*/metadata.json
+# Every real/sample client project folder - source documents, transcripts,
+# pipeline intermediates (workflow_execution/), and generated HTML/PPTX
+# reports - stays local only, never in git. The actual folder in this repo
+# is "Projects/" (capital P); "projects/" is kept too in case that changes.
+Projects/*/
+projects/*/
 
-# Keep templates and examples
+# Keep a template project skeleton and examples, if present
+!Projects/_template_project/
 !projects/_template_project/
 !examples/
 

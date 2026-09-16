@@ -1,0 +1,72 @@
+{
+  "executive_summary": "Acme Corp Data Migration is on track for the Nov 15, 2026 go-live, with one high-severity dependency on client-side data cleanup that needs attention this week.",
+  "health_status_visual": "YELLOW",
+  "status_indicators": {
+    "scope": "On track - no scope changes since kickoff",
+    "timeline": "At risk - client data cleanup running 1 week behind",
+    "resources": "Fully staffed",
+    "budget": "On budget"
+  },
+  "metrics": {
+    "contract_type": "Time & Materials",
+    "hours_estimated": 480,
+    "hours_consumed": 210,
+    "hours_remaining": 270,
+    "budget_total": 96000,
+    "budget_spent": 42000
+  },
+  "key_stakeholders": [
+    { "name": "Jordan Blake", "role": "Project Manager, Sikich" },
+    { "name": "Priya Nair", "role": "Technical Lead, Sikich" },
+    { "name": "Marcus Chen", "role": "VP Operations, Acme Corp" }
+  ],
+  "status_date": "2026-09-16",
+  "go_live_date": "2026-11-15",
+  "project_closure_date": null,
+  "risks_to_highlight": [
+    {
+      "title": "Client Data Cleanup Behind Schedule",
+      "severity": "high",
+      "why_it_matters": "Legacy inventory records still contain duplicate SKUs; migration cannot proceed to validation until cleanup is complete."
+    },
+    {
+      "title": "UAT Window Overlaps Thanksgiving Week",
+      "severity": "medium",
+      "why_it_matters": "Reduced client availability for user acceptance testing could compress the feedback cycle."
+    }
+  ],
+  "key_accomplishments": [
+    "Completed data mapping for all 14 legacy tables",
+    "Finished environment setup for Dev and Staging",
+    "Signed off on integration test plan with Acme IT"
+  ],
+  "upcoming_focus": [
+    {
+      "milestone": "Client completes SKU deduplication",
+      "due_date": "2026-09-20",
+      "owner": "Acme Corp Data Team",
+      "impact": "Blocks start of migration validation phase"
+    },
+    {
+      "milestone": "Begin UAT",
+      "due_date": "2026-10-06",
+      "owner": "Sikich QA",
+      "impact": "Confirms production readiness ahead of go-live"
+    }
+  ],
+  "critical_blockers": [
+    "Duplicate SKU cleanup not yet complete - blocks validation phase start"
+  ],
+  "flagged_items": [],
+  "recommendations": [
+    "Escalate SKU cleanup ownership to Marcus Chen if not resolved by 09-20",
+    "Confirm UAT participant availability given the Thanksgiving overlap"
+  ],
+  "confidence_level": "high",
+  "source_kpis": {
+    "project_name": "Acme Corp Data Migration",
+    "total_risks": 2,
+    "total_upcoming": 2,
+    "total_completed": 3
+  }
+}

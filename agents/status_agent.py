@@ -17,12 +17,133 @@ from pathlib import Path
 import anthropic
 
 
+# Fixed Sikich branding injected into every generated report, regardless of what
+# the model produces. This guarantees a consistent logo + navigation panel across
+# all outputs instead of relying on the model to reproduce it correctly each time.
+SIKICH_LOGO_URL = "https://tse3.mm.bing.net/th/id/OIP.k08qFe2HuE5-R9RJGS3isgAAAA?r=0&rs=1&pid=ImgDetMain&o=7&rm=3"
+
+# (section id, nav label) in the fixed order sections should appear. A link is only
+# rendered if the corresponding id actually shows up in the model's generated HTML.
+NAV_SECTIONS = [
+    ("executive-summary", "Executive Summary"),
+    ("status-indicators", "Status Indicators"),
+    ("metrics", "Metrics"),
+    ("timeline", "Timeline"),
+    ("accomplishments", "Key Accomplishments"),
+    ("upcoming-focus", "Upcoming Focus"),
+    ("risks", "Risks & Mitigations"),
+    ("blockers", "Critical Blockers"),
+    ("stakeholders", "Key Stakeholders"),
+    ("next-steps", "Next Steps"),
+]
+
+NAV_STYLE = """
+<style id="sikich-branding-style">
+    #sikich-nav-panel, #sikich-nav-panel * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0 !important; padding-left: 260px !important; }
+    #sikich-nav-panel {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 260px;
+        height: 100vh;
+        background-color: #003366;
+        overflow-y: auto;
+        padding: 24px 0;
+        z-index: 1000;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    #sikich-nav-panel::-webkit-scrollbar { width: 8px; }
+    #sikich-nav-panel::-webkit-scrollbar-thumb { background: #0099cc; border-radius: 4px; }
+    #sikich-nav-panel .sikich-nav-logo { padding: 0 20px 20px; }
+    #sikich-nav-panel .sikich-nav-logo img { width: 100%; max-width: 180px; display: block; }
+    #sikich-nav-panel h2 {
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 14px 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+        margin: 10px 0 0 0;
+    }
+    #sikich-nav-panel a {
+        display: block;
+        padding: 10px 20px;
+        color: #cfe3f2;
+        text-decoration: none;
+        font-size: 14px;
+        border-left: 3px solid transparent;
+        transition: all 0.2s ease;
+    }
+    #sikich-nav-panel a:hover {
+        background-color: rgba(0, 153, 204, 0.25);
+        color: #ffffff;
+        border-left-color: #0099cc;
+    }
+    @media (max-width: 768px) {
+        body { padding-left: 0 !important; }
+        #sikich-nav-panel { position: relative; width: 100%; height: auto; }
+    }
+    @media print {
+        #sikich-nav-panel { display: none !important; }
+        body { padding-left: 0 !important; }
+    }
+</style>
+"""
+
+
 class StatusReportAgent:
     """Generates beautiful HTML status reports using Claude Sonnet."""
 
     def __init__(self, model: str = "claude-sonnet-5"):
         self.client = anthropic.Anthropic()
         self.model = model
+
+    def _inject_sikich_branding(self, html: str) -> str:
+        """
+        Deterministically inject the Sikich logo and navigation panel into
+        generated HTML. This runs as a fixed post-processing step (not a model
+        request) so the branding is guaranteed on every report, independent of
+        what the model actually generated.
+        """
+        present_sections = [
+            (section_id, label)
+            for section_id, label in NAV_SECTIONS
+            if re.search(rf'id=["\']{re.escape(section_id)}["\']', html)
+        ]
+
+        nav_links = "\n".join(
+            f'        <a href="#{section_id}">{label}</a>'
+            for section_id, label in present_sections
+        )
+        nav_body = f"        <h2>Navigation</h2>\n{nav_links}" if nav_links else ""
+
+        nav_html = f"""
+<nav id="sikich-nav-panel">
+    <div class="sikich-nav-logo">
+        <img src="{SIKICH_LOGO_URL}" alt="Sikich Logo">
+    </div>
+{nav_body}
+</nav>
+"""
+
+        # Insert branding CSS just before </head>
+        if "</head>" in html:
+            html = html.replace("</head>", f"{NAV_STYLE}</head>", 1)
+        else:
+            html = NAV_STYLE + html
+
+        # Insert nav panel right after the opening <body ...> tag
+        body_match = re.search(r"<body[^>]*>", html, re.IGNORECASE)
+        if body_match:
+            insert_at = body_match.end()
+            html = html[:insert_at] + nav_html + html[insert_at:]
+        else:
+            html = nav_html + html
+
+        return html
 
     def build_formatting_prompt(self, prioritized_kpis: Dict[str, Any]) -> str:
         """Build prompt for Claude Sonnet to generate HTML."""
@@ -43,24 +164,33 @@ Here's the project data to format:
 
 Return a complete, self-contained HTML page (no external CSS/JS).
 
-Key sections to include:
+Do NOT build a company logo, header banner image, or a left-hand navigation sidebar
+yourself - those are injected automatically after you generate the page. Just write the
+page content starting from a plain <body> (no left padding/margin reserved for a sidebar;
+that will be added automatically too).
+
+Key sections to include. Wrap each one in a container element with the EXACT id shown
+(e.g. <section id="executive-summary">...</section>) so it can be linked to from the
+navigation panel that gets added automatically. Only include the id if you include the
+section at all (e.g. omit id="blockers" entirely if there are no blockers).
 1. Header: Project name + date + health status badge (+ project_closure_date if it is non-null;
    omit that line entirely if it's null - do not invent a closure date)
-2. Executive Summary: 2-3 sentence overview
-3. Status Indicators: four separate badges for Scope / Timeline / Resources / Budget, using the
-   data.status_indicators object. For any dimension that is null, show a neutral "Not assessed"
-   label instead of a color - do not guess a color for it.
-4. Metrics: contract type (Fixed Fee / Time & Materials, from data.metrics.contract_type) and
-   estimated/consumed/remaining hours or budget (from data.metrics). Show "TBD" for any null
-   field in data.metrics - never calculate or guess a number that isn't explicitly provided.
-5. Timeline: Current status vs. plan
-6. Key Accomplishments: What shipped
-7. Upcoming Focus: Next 30 days
-8. Risks & Mitigations: What matters
-9. Critical Blockers: What needs attention (if any)
-10. Key Stakeholders: name + role for each entry in data.key_stakeholders. If that list is empty,
-    omit this section entirely rather than inventing names or roles.
-11. Next Steps/Recommendations: What to do
+2. Executive Summary (id="executive-summary"): 2-3 sentence overview
+3. Status Indicators (id="status-indicators"): four separate badges for Scope / Timeline /
+   Resources / Budget, using the data.status_indicators object. For any dimension that is null,
+   show a neutral "Not assessed" label instead of a color - do not guess a color for it.
+4. Metrics (id="metrics"): contract type (Fixed Fee / Time & Materials, from
+   data.metrics.contract_type) and estimated/consumed/remaining hours or budget (from
+   data.metrics). Show "TBD" for any null field in data.metrics - never calculate or guess a
+   number that isn't explicitly provided.
+5. Timeline (id="timeline"): Current status vs. plan
+6. Key Accomplishments (id="accomplishments"): What shipped
+7. Upcoming Focus (id="upcoming-focus"): Next 30 days
+8. Risks & Mitigations (id="risks"): What matters
+9. Critical Blockers (id="blockers"): What needs attention (if any)
+10. Key Stakeholders (id="stakeholders"): name + role for each entry in data.key_stakeholders.
+    If that list is empty, omit this section entirely rather than inventing names or roles.
+11. Next Steps/Recommendations (id="next-steps"): What to do
 
 Style requirements:
 - Sikich brand colors: #003366 (navy), #0099cc (light blue), #ffffff (white), #f5f5f5 (light gray)
@@ -180,6 +310,10 @@ Remember: This report will be sent to executives and clients. Make it look like 
             print(f"❌ Response doesn't look like HTML")
             print(f"First 500 chars: {response_text[:500]}")
             raise ValueError("Claude didn't return valid HTML")
+
+        # Hardcode the Sikich logo + navigation panel into every report. This is
+        # done in code (not left to the model) so it's guaranteed on every output.
+        html_content = self._inject_sikich_branding(html_content)
 
         # Save HTML
         output_path = Path(output_html_path)
